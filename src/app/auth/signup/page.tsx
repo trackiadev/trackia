@@ -1,73 +1,68 @@
 'use client'
-
 import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { supabase } from '@/lib/supabaseClient'
+import { useRouter } from 'next/navigation'
 
-export default function SignUp() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+})
+
+type SignupData = z.infer<typeof signupSchema>
+
+export default function SignUpPage() {
+  const router = useRouter()
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const { register, handleSubmit, formState: { errors } } = useForm<SignupData>({
+    resolver: zodResolver(signupSchema),
+  })
+
+  const onSubmit = async (data: SignupData) => {
     setLoading(true)
-    setMessage('')
-
-    // Utilisation de Supabase pour créer un compte avec email + mot de passe
-    const { data, error } = await supabase.auth.signUp({ email, password })
-
-    if (error) {
-      setMessage(error.message)
-    } else {
-      setMessage('Compte créé ! Vérifie ton email pour confirmer.')
-      setEmail('')
-      setPassword('')
-    }
-
+    setErrorMsg(null)
+    const { error } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        // redirect after magic link / confirm (optional)
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
+      }
+    })
     setLoading(false)
+    if (error) {
+      setErrorMsg(error.message)
+      return
+    }
+    // show info, redirect to check email page or dashboard
+    router.push('/auth/check-email') // create a page that says "check your email"
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form
-        onSubmit={handleSignUp}
-        className="bg-white p-8 rounded shadow-md w-full max-w-md"
-      >
-        <h1 className="text-2xl font-bold mb-6 text-center">Créer un compte</h1>
+    <div className="max-w-md mx-auto p-6">
+      <h1 className="text-2xl mb-4">S'inscrire</h1>
 
-        {message && (
-          <div className="mb-4 p-2 text-center text-sm text-white bg-blue-500 rounded">
-            {message}
-          </div>
-        )}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label className="block">Email</label>
+          <input {...register('email')} className="input" />
+          {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+        </div>
 
-        <label className="block mb-2 font-medium">Email</label>
-        <input
-          type="email"
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          required
-          className="w-full mb-4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+        <div>
+          <label className="block">Mot de passe</label>
+          <input {...register('password')} type="password" className="input" />
+          {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+        </div>
 
-        <label className="block mb-2 font-medium">Mot de passe</label>
-        <input
-          type="password"
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required
-          className="w-full mb-4 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
+        {errorMsg && <p className="text-sm text-red-600">{errorMsg}</p>}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className={`w-full py-2 rounded text-white font-medium ${
-            loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-          }`}
-        >
-          {loading ? 'Création...' : 'S’inscrire'}
+        <button disabled={loading} className="btn">
+          {loading ? 'En cours...' : "S'inscrire"}
         </button>
       </form>
     </div>
