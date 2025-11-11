@@ -1,0 +1,30 @@
+{
+  "appName": "Trackia",
+  "slogan": "Le CRM intelligent pour tes candidatures",
+  "nav": {
+    "home": "Accueil",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "settings": "Paramètres",
+    "pricing": "Tarifs",
+    "contact": "Contact"
+  },
+  "buttons": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "next": "Suivant",
+    "previous": "Précédent",
+    "logout": "Se déconnecter"
+  },
+  "messages": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "success": "Action réussie"
+  },
+  "footer": {
+    "rights": "Tous droits réservés",
+    "madeBy": "Fait avec ❤️ par Trackia"
+  }
+}
