@@ -1,0 +1,12 @@
+{
+  "siteName": "Trackia",
+  "nav": {
+    "dashboard": "Dashboard",
+    "auth": "Login"
+  },
+  "buttons": {
+    "signup": "Sign up",
+    "login": "Login",
+    "logout": "Logout"
+  }
+}
